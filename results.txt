@@ -1,7 +1,12 @@
->final.count([Dept],[0])
+>fina
+
+>final.count([jk],[
 validate query semantic error!
 
->final.count([Dept],[1])
+>final.count([Dept],0])
+validate query semantic error!
+
+>final.count([Dept],[1]
 validate query semantic error!
 
 >final.count([],[])
@@ -15,4 +20,10 @@ validate query semantic error!
 
 >final.count([f i3],[1])
 validate query semantic error!
+
+>final.count([field],[1])asdf
+validate query semantic error!
+
+>final.count([field],[1])
+0
 
