@@ -1,0 +1,18 @@
+>final.count([Dept],[0])
+validate query semantic error!
+
+>final.count([Dept],[1])
+validate query semantic error!
+
+>final.count([],[])
+validate query semantic error!
+
+>final.count([field],[2])
+validate query semantic error!
+
+>final.count([,[])
+validate query semantic error!
+
+>final.count([f i3],[1])
+validate query semantic error!
+

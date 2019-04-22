@@ -1,0 +1,6 @@
+final.count([Dept],[0])
+final.count([Dept],[1])
+final.count([],[])
+final.count([field],[2])
+final.count([,[])
+final.count([f i3],[1])
