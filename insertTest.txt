@@ -1,0 +1,12 @@
+fin
+final.
+final.insert([])
+final.insert( field:1)
+final.insert(field:1,field:2)
+final.insert(field:1)asd
+final.insert(field:1 )
+final.insert(field:1 field:2 )
+final.insert( )
+final.insert(:)
+final.insert(field:1)
+final.insert(field:1 field2:2 field3:3)

@@ -151,7 +151,9 @@ def insert( db , params , maxId , output ):
 
 def validateSyntax( line ):
     if len(line) > 13:
-        if line[:13] == "final.count([":
+        # Creates a sub-string of the query used to determine which it is
+        query = line[:13]
+        if query == "final.count([":
             # Grabs everything to the right of the condition above
             line = line[13:]
             # Checks that the field and uniqueness are separated correctly
@@ -161,7 +163,7 @@ def validateSyntax( line ):
                 if line[0].isalnum() == 1:
                     # Checks that the query is closed correctly
                     if line[1].find("])") > 0:
-                        line = line[1].split("])")
+                        line = line[1].split("])", 1)
                         # Looks for the case that something other than a new line
                         # is after the enclosing parenthesis
                         if line[1] != '':
@@ -170,28 +172,80 @@ def validateSyntax( line ):
                         # Validates the uniqueness is a boolean value
                         if line[0] == '0' or line[0] == '1':
                             return True
-        elif line[:13] == "final.insert(":
-            
-        elif line[:13] == "final.query([":
-            print(line)
-             
+        elif query == "final.insert(":
+            # Grabs everything to the right of the condition above
+            line = line[13:]
+            # Checks for enclosing parenthesis
+            if line.find(')') > 0:
+                line = line.split(')', 1)
+                # Checks that either nothing or \n exists after
+                # enclosing parenthesis
+                if line[1] != '':
+                    if line[1] != '\n':
+                        return False
+                # Separates query into ['field:1', 'field2:2']
+                line = line[0].split(' ')
+                # Separates the fields from values and checks for the correct types
+                for i, val in enumerate(line):
+                    val = val.split(':', 1)
+                    if val[0].isalnum() == 0 or val[1].isdigit() == 0:
+                        return False
+                return True
+        elif query == "final.query([":
+            # Grabs everything to the right of the condition above
+            line = line[13:]
+            if line == "],[])" or line == "],[]\n":
+                return True
+            # Checks that the query is closed correctly
+            if line.find("])") > 0:
+                line = line.split("])", 1)
+                # Looks for the case that something other than a new line
+                # or nothing is after the enclosing parenthesis
+                if line[1] != '\n':
+                    if line[1] != '':
+                        return False
+                line = line[0]
+                # Checks that the operations and fields are separated correctly
+                if line.find("],[", 1) >= 0:
+                    line = line.split("],[", 1)
+                    for i, item in enumerate(line):
+                        line[i] = item.split(',')
+                    for condition in line[0]:
+                        operator = ""
+                        if condition == '':
+                            return False
+                        for i, letter in enumerate(condition):
+                            if letter.isalnum() == 0:
+                                operator = letter
+                                cond = []
+                                # Handles cases where the the operator is one character
+                                if operator == ">":
+                                    cond = condition.split(">", 1)
+                                elif operator == "<":
+                                    cond = condition.split("<", 1)
+                                elif operator == "=":
+                                    cond = condition.split("=", 1)
+                                else:
+                                    return False
+                                # Handles cases where the operator is two characters
+                                if len(condition) > i + 1:
+                                    if condition[i + 1].isdigit() == False:
+                                        operator += condition[i+1]
+                                        if operator == "<>":
+                                            cond = condition.split("<>", 1)
+                                        elif operator == ">=":
+                                            cond = condition.split(">=", 1)
+                                        elif operator == "<=":
+                                            cond = condition.split("<=", 1)
+                                        else:
+                                            return False
+                                
+                                print(line)
+                                print(str(condition.split(operator, 1)) + '\n')
     return False
 
-# def validateSyntax( line ):
-#     # Validates the query is using final followed by a period
-#     if line[:5] == "final":
-#         if line[5] == '.':
-#             # Validates the query after final. has 1 of 3 the correct forms
-#             query = line[6:13]
-#             if query == "insert(":
-#                 line = line[13:].split(')', 1)[0]
-#                 line = line.split(' ')
-#                 for i, field in enumerate(line):
-#                     line[i] = field.split(':', 1)
-#                 for field in line:
-#                     if field[0].isalnum() == False or field[1].isdigit() == False:
-#                         return 0
-#                 return 1
+
+
 #             elif query == "query([":
 #                 line = line[13:].split("])", 1)
 #                 if len(line) > 1:
@@ -237,24 +291,7 @@ def validateSyntax( line ):
 #                                             return 0
 #                                         else:
 #                                             return 1
-#             elif query == "count([":
-#                 line = line[13:]
-#                 if line.find("],[") > 0:
-#                     line = line.split("],[", 1)
-#                     print(line)
-#                     if line.isalnum() == 1:
-#                         print(line)
 
-
-
-                # line = line[13:]
-                # line = line.split("]", 1)
-                # if line[0].isalnum() == True:    
-                #     if line[1][:2] == ",[":
-                #         if line[1][2] == '0' or line[1][2] == '1':
-                #             if line[1][3:] == "])\n":
-                #                 return 1
-    return 0
 
 
 db = []
