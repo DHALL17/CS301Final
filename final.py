@@ -119,7 +119,6 @@ def insert( db , params , maxId , output ):
                 return
             found = 1
             break
-    
     # Sets a new attribute of DocID if it wasn't found in the search
     docId = ""
     if found == 0:
@@ -128,18 +127,15 @@ def insert( db , params , maxId , output ):
         # Separates the attribute type from value for docId
         docId = docId.split(':', 1)
         docId[1] = int(docId[1])
-    
     # Separates the attribute type from value for list of params
     for i, attr in enumerate(params):
         attr = attr.split(':', 1)
         attr[1] = int(attr[1])
         params[i] = attr
         i += 1
-
     if len(docId) > 0:
         params.insert(0, docId)
     db.append(params)
-
     # Prints the insert back as confirmation
     for i, atr in enumerate(params):
         print(atr[0] + ":" + str(atr[1]), end='', file=output)
@@ -209,90 +205,29 @@ def validateSyntax( line ):
                 if line.find("],[", 1) >= 0:
                     line = line.split("],[", 1)
                     for i, item in enumerate(line):
-                        line[i] = item.split(',')
+                        line[i] = item.split(',', 1)
+                    # Grabs the conditions from the query
                     for condition in line[0]:
-                        operator = ""
-                        if condition == '':
+                        # Searches for the expected operators
+                        if condition.find("<>") != -1:
+                            condition = condition.split("<>", 1)
+                        elif condition.find(">=") != -1:
+                            condition = condition.split(">=", 1)
+                        elif condition.find("<=") != -1:
+                            condition = condition.split("<=", 1)
+                        elif condition.find(">") != -1:
+                            condition = condition.split(">", 1)
+                        elif condition.find("<") != -1:
+                            condition = condition.split("<", 1)
+                        elif condition.find("=") != -1:
+                            condition = condition.split("=", 1)
+                        else:
                             return False
-                        for i, letter in enumerate(condition):
-                            if letter.isalnum() == 0:
-                                operator = letter
-                                cond = []
-                                # Handles cases where the the operator is one character
-                                if operator == ">":
-                                    cond = condition.split(">", 1)
-                                elif operator == "<":
-                                    cond = condition.split("<", 1)
-                                elif operator == "=":
-                                    cond = condition.split("=", 1)
-                                else:
-                                    return False
-                                # Handles cases where the operator is two characters
-                                if len(condition) > i + 1:
-                                    if condition[i + 1].isdigit() == False:
-                                        operator += condition[i+1]
-                                        if operator == "<>":
-                                            cond = condition.split("<>", 1)
-                                        elif operator == ">=":
-                                            cond = condition.split(">=", 1)
-                                        elif operator == "<=":
-                                            cond = condition.split("<=", 1)
-                                        else:
-                                            return False
-                                
-                                print(line)
-                                print(str(condition.split(operator, 1)) + '\n')
+                        # Type checks the two sides of the string
+                        if condition[0].isalnum() == 0 or condition[1].isdigit() == 0:
+                            return False
+                    return True
     return False
-
-
-
-#             elif query == "query([":
-#                 line = line[13:].split("])", 1)
-#                 if len(line) > 1:
-#                     line = line[0]
-#                     line = line.split("],[", 1)
-#                     if len(line) > 1:
-#                         conditions = line[0].split(',')
-#                         fields = line[1].split(',')
-#                         if fields != ['']:
-#                             for field in fields:
-#                                 if field.isalpha() == False:
-#                                     return 0
-#                         if conditions != ['']:
-#                             for cond in conditions:
-#                                 for i, letter in enumerate(cond):
-#                                     if letter.isalpha() == False:
-#                                         operator = letter
-#                                         condition = []
-#                                         # Handles cases where the the operator is one character
-#                                         if operator == ">":
-#                                             condition = cond.split(">", 1)
-#                                         elif operator == "<":
-#                                             condition = cond.split("<", 1)
-#                                         elif operator == "=":
-#                                             condition = cond.split("=", 1)
-#                                         # Handles cases where the operator is two characters
-#                                         if len(cond) > i + 1:
-#                                             if cond[i + 1].isdigit() == False:
-#                                                 operator += cond[i+1]
-
-#                                             if operator == "<>":
-#                                                 condition = cond.split("<>", 1)
-#                                             elif operator == ">=":
-#                                                 condition = cond.split(">=", 1)
-#                                             elif operator == "<=":
-#                                                 condition = cond.split("<=", 1)
-#                                             else:
-#                                                 return 0
-#                                         else:
-#                                             return 0
-#                                         # Validates that the right hand side of the condition is only digits
-#                                         if condition[1].isnumeric() == False:
-#                                             return 0
-#                                         else:
-#                                             return 1
-
-
 
 db = []
 maxId = [0]
@@ -359,4 +294,4 @@ with open("queries.txt", 'r') as fp:
         else:
             if line[len(line) - 1] != '\n':
                 print(file=output)
-            print("validate query semantic error!\n", file=output)
+            print("query semantic error!\n", file=output)
