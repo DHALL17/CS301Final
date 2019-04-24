@@ -1,7 +1,7 @@
 def satsifyConditions( d , conditions ):
     # If there are no conditions always returns TRUE(1)
     if conditions == ['']:
-        return 1
+        return True
     # Checks if the conditions are met for the tuple returns False if not met
     for cond in conditions:
         found = 0
@@ -10,28 +10,28 @@ def satsifyConditions( d , conditions ):
                 found = 1
                 if cond[1] == ">":
                     if attribute[1] <= cond[2]:
-                        return 0
+                        return False
                 elif cond[1] == "<":
                     if attribute[1] >= cond[2]:
-                        return 0
+                        return False
                 elif cond[1] == "=":
                     if attribute[1] != cond[2]:
-                        return 0
+                        return False
                 elif cond[1] == ">=":
                     if attribute[1] < cond[2]:
-                        return 0
+                        return False
                 elif cond[1] == "<=":
                     if attribute[1] > cond[2]:
-                        return 0
+                        return False
                 elif cond[1] == "<>":
                     if attribute[1] == cond[2]:
-                        return 0
+                        return False
                 else:
                     print("Some kind of conditional problem in SatisfyConditions")
         # Checks to see if the attribute for condition was found
         if found == 0:
-            return 0
-    return 1
+            return False
+    return True
 
 def query( db , params , output ):
     conditions = params[0].split(',')
@@ -51,7 +51,7 @@ def query( db , params , output ):
     fields = params[1].split(',')
     # Prints the tuples satisfying the conditions
     for d in db:
-        if satsifyConditions( d , conditions ) == 1:
+        if satsifyConditions( d , conditions ) == True:
             # Handles the case of 0 fields
             if fields == ['']:
                 out = ""
@@ -104,8 +104,8 @@ def duplicate_id( db , _id ):
         for attribute in d:
             if attribute[0] == "DocID":
                 if _id == attribute[1]:
-                    return 1
-    return 0
+                    return True
+    return False
 
 def insert( db , params , maxId , output ):
     found = 0
@@ -114,7 +114,7 @@ def insert( db , params , maxId , output ):
     # Searches attribute list for DocID to check for duplicates
     for attr in params:
         if attr[:5] == "DocID":
-            if duplicate_id( db , int(attr[6:]) ) == 1:
+            if duplicate_id( db , int(attr[6:]) ) == True:
                 print("Duplicate DocID error!" + '\n', file=output)
                 return
             found = 1
@@ -190,7 +190,7 @@ def validateSyntax( line ):
         elif query == "final.query([":
             # Grabs everything to the right of the condition above
             line = line[13:]
-            if line == "],[])" or line == "],[]\n":
+            if line == "],[])" or line == "],[])\n":
                 return True
             # Checks that the query is closed correctly
             if line.find("])") > 0:
